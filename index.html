@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Quiz Excel – 60 questions</title>
+<title>Quiz Excel – 70 questions</title>
 <style>
 :root{--bg:#f6f8f6;--card:#fff;--tx:#1d2a22;--mut:#5d6b63;--ac:#1d6f42;--ac2:#e3f1e8;--bd:#d5ded8;--ok:#1d6f42;--ko:#b3261e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121815;--card:#1b241f;--tx:#e8efea;--mut:#9fb0a6;--ac:#4cc38a;--ac2:#22342a;--bd:#2f3d35;--ok:#4cc38a;--ko:#ff8a80}}
@@ -32,16 +32,16 @@ button.sec{background:var(--ac2);color:var(--ac);border:1px solid var(--bd)}
 </head>
 <body>
 <main>
-<h1>Quiz Excel – 60 questions</h1>
+<h1>Quiz Excel – 70 questions</h1>
 <div id="start" class="card noprint">
-<p class="mut">Renseignez votre identité puis répondez aux 60 questions. Un rapport PDF avec correction sera disponible à la fin. <strong>Le test ne peut être passé qu’une seule fois par stagiaire</strong> : une fois terminé, il n’est plus possible de le refaire.</p>
+<p class="mut">Renseignez votre identité puis répondez aux 70 questions (60 QCM et 10 questions à réponse écrite). Un rapport PDF avec correction sera disponible à la fin. <strong>Le test ne peut être passé qu’une seule fois par stagiaire</strong> : une fois terminé, il n’est plus possible de le refaire.</p>
 <label class="f" for="nom">Nom</label><input type="text" id="nom" autocomplete="family-name">
 <label class="f" for="pre">Prénom</label><input type="text" id="pre" autocomplete="given-name">
 <p id="err" class="ko hide">Merci de renseigner le nom et le prénom.</p>
 <button id="go">Commencer le quiz</button>
 </div>
 <div id="quiz" class="hide noprint">
-<div class="bar"><span id="who"></span><span id="cnt">0/60</span></div>
+<div class="bar"><span id="who"></span><span id="cnt">0/70</span></div>
 <div id="qs"></div>
 <button id="fin">Terminer et voir le résultat</button>
 </div>
@@ -120,6 +120,21 @@ var Q=[
 ["L’opérateur de multiplication est :",["x","^","*","%"],2],
 ["Résultat de =2+3*4 :",["20","14","24","9"],1]
 ];
+var W=[
+["Écrivez la formule qui additionne les cellules A1 à A10.",["=SOMME(A1:A10)"],"=SOMME(A1:A10)"],
+["Écrivez la formule qui calcule la moyenne des cellules B1 à B5.",["=MOYENNE(B1:B5)"],"=MOYENNE(B1:B5)"],
+["Écrivez la formule qui renvoie la plus grande valeur de C1 à C20.",["=MAX(C1:C20)"],"=MAX(C1:C20)"],
+["Écrivez la formule qui renvoie la plus petite valeur de D1 à D8.",["=MIN(D1:D8)"],"=MIN(D1:D8)"],
+["Écrivez la formule qui compte les cellules non vides de A1 à A15.",["=NBVAL(A1:A15)"],"=NBVAL(A1:A15)"],
+["Écrivez la formule qui compte les cellules vides de A1 à A15.",["=NB.VIDE(A1:A15)"],"=NB.VIDE(A1:A15)"],
+["Écrivez la formule qui compte combien de fois « Oui » apparaît dans A1:A10.",["=NB.SI(A1:A10;\"Oui\")"],"=NB.SI(A1:A10;\"Oui\")"],
+["Écrivez la formule qui additionne B1:B10 lorsque la cellule correspondante de A1:A10 vaut « Paris ».",["=SOMME.SI(A1:A10;\"Paris\";B1:B10)"],"=SOMME.SI(A1:A10;\"Paris\";B1:B10)"],
+["Écrivez la formule qui affiche « Admis » si A1 est supérieur ou égal à 10, sinon « Refusé ».",["=SI(A1>=10;\"Admis\";\"Refusé\")"],"=SI(A1>=10;\"Admis\";\"Refusé\")"],
+["Quel raccourci clavier permet d’annuler la dernière action ?",["Ctrl+Z","CtrlZ"],"Ctrl+Z"]
+];
+var T=Q.length+W.length;
+function nz(s){return String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s/g,"").replace(/,/g,";").replace(/[“”«»]/g,'"').replace(/^=/,"")}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
 var $=function(i){return document.getElementById(i)};
 var nom,pre;
 function begin(){
@@ -130,10 +145,12 @@ Q.forEach(function(q,i){
 h+='<div class="card q"><h3>'+(i+1)+". "+q[0]+"</h3>";
 q[1].forEach(function(o,j){h+='<label><input type="radio" name="q'+i+'" value="'+j+'"> '+o+"</label>"});
 h+="</div>"});
+h+='<h2>Questions à réponse écrite</h2><p class="mut">Tapez votre réponse (les formules commencent par =).</p>';
+W.forEach(function(w,i){h+='<div class="card q"><h3>'+(Q.length+i+1)+". "+w[0]+'</h3><input type="text" id="w'+i+'" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Votre réponse"></div>'});
 $("qs").innerHTML=h;
-$("qs").addEventListener("change",count);
+$("qs").addEventListener("change",count);$("qs").addEventListener("input",count);
 window.scrollTo(0,0)};
-function count(){var n=0;Q.forEach(function(q,i){if(document.querySelector('input[name="q'+i+'"]:checked'))n++});$("cnt").textContent=n+"/60"}
+function count(){var n=0;Q.forEach(function(q,i){if(document.querySelector('input[name="q'+i+'"]:checked'))n++});W.forEach(function(w,i){if($("w"+i)&&$("w"+i).value.trim())n++});$("cnt").textContent=n+"/"+T}
 function show(ans,ds,sv){
 var s=0,h="<h3 style='margin-top:0'>Correction détaillée</h3>";
 Q.forEach(function(q,i){
@@ -141,11 +158,13 @@ var a=ans[i],ok=a===q[2];if(ok)s++;
 h+='<div class="r"><strong>'+(i+1)+". "+q[0]+"</strong><br>"+
 '<span class="'+(ok?"ok":"ko")+'">'+(ok?"✓ ":"✗ ")+"Réponse : "+(a<0?"(aucune)":q[1][a])+"</span>"+
 (ok?"":'<br><span class="ok">Bonne réponse : '+q[1][q[2]]+"</span>")+"</div>"});
+W.forEach(function(w,i){var t=ans[Q.length+i]||"",ok=w[1].some(function(x){return nz(x)===nz(t)});if(ok)s++;
+h+='<div class="r"><strong>'+(Q.length+i+1)+". "+w[0]+"</strong><br>"+'<span class="'+(ok?"ok":"ko")+'">'+(ok?"✓ ":"✗ ")+"Réponse : "+(t?esc(t):"(aucune)")+"</span>"+(ok?"":'<br><span class="ok">Bonne réponse : '+esc(w[2])+"</span>")+"</div>"});
 $("start").classList.add("hide");$("quiz").classList.add("hide");$("res").classList.remove("hide");
 $("rn").textContent=pre+" "+nom.toUpperCase();
 $("rd").textContent=ds;
-$("sc").textContent=s+" / 60";
-$("sc2").textContent="Soit "+(s/3).toFixed(1).replace(".",",")+" / 20 – "+Math.round(s/60*100)+" % de réussite";
+$("sc").textContent=s+" / "+T;
+$("sc2").textContent="Soit "+(s*20/T).toFixed(1).replace(".",",")+" / 20 – "+Math.round(s/T*100)+" % de réussite";
 $("corr").innerHTML=h;if(sv)$("sc2").textContent+=" · Test déjà passé : une seule tentative est autorisée.";window.scrollTo(0,0)}
 function fmt(){return new Date().toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"})}
 function KEY(){return "quizexcel:"+(pre+"-"+nom).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
@@ -156,7 +175,7 @@ var sv=null;try{sv=JSON.parse(localStorage.getItem(KEY()))}catch(e){}
 if(sv&&sv.a){show(sv.a,sv.d,1);return}
 begin()};
 $("fin").onclick=function(){
-var ans=Q.map(function(q,i){var c=document.querySelector('input[name="q'+i+'"]:checked');return c?+c.value:-1});
+var ans=Q.map(function(q,i){var c=document.querySelector('input[name="q'+i+'"]:checked');return c?+c.value:-1}).concat(W.map(function(w,i){return $("w"+i).value.trim()}));
 var ds=fmt();
 try{localStorage.setItem(KEY(),JSON.stringify({a:ans,d:ds}))}catch(e){}
 show(ans,ds,0)};
